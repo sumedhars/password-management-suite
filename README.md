@@ -1,10 +1,10 @@
-### Password Management Suite - Information Security (CPE 4800) Final Project
+## Password Management Suite - Information Security (CPE 4800) Final Project
 
 Adapted from the JMongoDB Java Quick Start Project.
 
 In Progress.
 
-# Author
+### Author
 
 Sumedha Sanjeev
 
