@@ -1,14 +1,14 @@
 package com.mongodb.quickstart;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-public class BCryptEncryptor implements Encrpytor{
+public class BCryptEncryptor {
 
     // represents the complexity of the hash computation
     private static final int WORKLOAD = 12;
 
     public BCryptEncryptor() {}
 
-    @Override
+
     public String encrypt(String plaintext) {
         try {
             return BCrypt.hashpw(plaintext, BCrypt.gensalt(WORKLOAD));

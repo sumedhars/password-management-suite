@@ -5,7 +5,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-public class AESEncryptor implements Encrpytor{
+public class AESEncryptor implements Encryptor {
 
     private static final String AES = "AES";
     private static final int KEY_SIZE = 16; // 128 bits
@@ -45,6 +45,7 @@ public class AESEncryptor implements Encrpytor{
         }
     }
 
+    @Override
     public String decrypt(String ciphertext) {
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");

@@ -5,7 +5,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class TripleDESEncryptor {
+public class TripleDESEncryptor implements Encryptor{
     private SecretKey secretKey;
     private Cipher cipher;
 
@@ -23,11 +23,12 @@ public class TripleDESEncryptor {
         }
     }
 
-    public String encrypt(String input) {
+    @Override
+    public String encrypt(String plaintext) {
         try {
             // Initialize Cipher for ENCRYPTION mode
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] inputBytes = input.getBytes();
+            byte[] inputBytes = plaintext.getBytes();
             byte[] encryptedBytes = cipher.doFinal(inputBytes);
             return java.util.Base64.getEncoder().encodeToString(encryptedBytes); // Base64 encode to make it a readable string
         } catch (Exception e){
@@ -36,10 +37,11 @@ public class TripleDESEncryptor {
         }
     }
 
-    public String decrypt(String encryptedInput) {
+    @Override
+    public String decrypt(String ciphertext) {
         try {
             // Initialize Cipher for DECRYPTION mode
-            byte[] encryptedBytes = java.util.Base64.getDecoder().decode(encryptedInput);
+            byte[] encryptedBytes = java.util.Base64.getDecoder().decode(ciphertext);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
             return new String(decryptedBytes);
