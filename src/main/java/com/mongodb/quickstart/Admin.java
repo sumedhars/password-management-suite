@@ -47,16 +47,16 @@ public class Admin {
                         System.out.println("-----x------");
                         System.out.println("Options:");
                         System.out.println("1. AES Encryption");
-                        System.out.println("BCrypt Encryption");
+                        System.out.println("2. 3DES Encryption");
                         Integer option2 = Integer.parseInt(scanner.nextLine());
                         switch (option2){
                             case 1 -> {
                                 updateEncryptionAlgorithm(usersCollection, "aes");
                             }
                             case 2 -> {
-                                updateEncryptionAlgorithm(usersCollection, "bcrypt");
+                                updateEncryptionAlgorithm(usersCollection, "3des");
                             }
-                            default -> System.out.println("Incorrect Option. Exiting.");
+                            default -> System.out.println("Incorrect Option.");
                         }
                     }
                 }
@@ -72,6 +72,16 @@ public class Admin {
             //Bson updateOperation = new Document("$set", new Document("encryptionAlgorithm", encryptionType));
             Bson updateOperation = set("alg", encryptionType);
             collection.updateOne(filter, updateOperation);
+        }
+    }
+
+    public static void changePasswordEncryption(MongoCollection<Document> collection,
+                                                String currentEncryptionType){
+        //TODO
+        if (currentEncryptionType.equals("aes")){
+
+        } else {
+
         }
     }
 
