@@ -27,6 +27,7 @@ public class Create {
         }
     }
 
+
     private static void insertOneDocument(MongoCollection<Document> gradesCollection) {
         gradesCollection.insertOne(generateNewGrade(10000d, 1d));
         System.out.println("One grade inserted for studentId 10000.");
