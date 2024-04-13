@@ -31,7 +31,7 @@ public class Main {
         try (MongoClient mongoClient = MongoClients.create(connectionString)) {
 
             Scanner scanner = new Scanner(System.in);
-            AESEncryptor aesEncryptor = new AESEncryptor();
+            //AESEncryptor aesEncryptor = new AESEncryptor();
 
             MongoDatabase appUsers = mongoClient.getDatabase("appUsers");
             MongoDatabase passwordManager = mongoClient.getDatabase("pwd-manager");
@@ -94,6 +94,7 @@ public class Main {
 
             if (loginSuccess) {
                 MongoCollection<Document> userCollection = passwordManager.getCollection(inputUsername);
+                String algType = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first().get("alg").toString();
 
                 System.out.println("If you would like to enter data, please enter 1.");
                 System.out.println("If you would like to retrieve data, please enter 2.");
@@ -112,17 +113,18 @@ public class Main {
                         double passwordEntropy = EntropyChecker.calculateEntropy(password);
                         System.out.println("Password Entropy: " + passwordEntropy);
 
-                        String cipherPassword = aesEncryptor.encrypt(password);
-                        String key = AESEncryptor.toString(aesEncryptor.getSecretKey());
-                        insertUsernamePassword(userCollection, applicationName, username, cipherPassword, key);
+                        if (algType.equals("aes")){
+                            insertUsernamePasswordAES(userCollection, applicationName, username, password);
+                        } else {
+                            insertUsernamePassword3DES(userCollection, applicationName, username, password);
+                        }
                     }
 
                     case 2 -> {
-                        SecretKeySpec secretKey = aesEncryptor.getSecretKey();
                         System.out.println("1. Enter the application/website name ");
                         String applicationName = scanner.nextLine();
                         ArrayList<HashMap<String, String>> dataList =
-                                retrieveUsernamePassword(userCollection, applicationName, secretKey);
+                                retrieveUsernamePasswordAES(userCollection, applicationName);
                         if (dataList.isEmpty()){
                             System.out.println("No records found.");
                         } else {
@@ -158,28 +160,40 @@ public class Main {
 
     private static void createUserAccount(MongoCollection<Document> collection, String username, String password){
         // create a new document with the username and password
+        // default encryption -> AES since it is stronger
         Document newUser = new Document("pwdMngrUsername", username)
-                .append("pwd", password);
+                .append("pwd", password).append("alg", "aes");
         // insert the document into the collection
         collection.insertOne(newUser);
         System.out.println("User account created successfully for " + username + ".");
     }
 
-
-    //TODO
-    // - update to take in plaintext password + password type
-    // -
-    private static void insertUsernamePassword(MongoCollection<Document> collection, String appName,
-                                               String username, String encryptedPassword, String key) {
+    private static void insertUsernamePasswordAES(MongoCollection<Document> collection, String appName,
+                                               String username, String plaintextPassword) {
+        AESEncryptor aesEncryptor = new AESEncryptor();
+        String encryptedPassword = aesEncryptor.encrypt(plaintextPassword);
+        String key = AESEncryptor.toString(aesEncryptor.getSecretKey());
         Document usernamePasswordDoc = new Document("appName", appName).
-                append("username", username).append("password", encryptedPassword).append("key", key);
+                append("username", username).append("password", encryptedPassword).append("key", key).
+                append("encryption", "aes");
+        collection.insertOne(usernamePasswordDoc);
+        System.out.println("Username and password inserted successfully.");
+    }
+
+    private static void insertUsernamePassword3DES(MongoCollection<Document> collection, String appName,
+                                                  String username, String plaintextPassword) {
+        TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
+        String encryptedPassword = tripleDESEncryptor.encrypt(plaintextPassword);
+        Document usernamePasswordDoc = new Document("appName", appName).
+                append("username", username).append("password", encryptedPassword).
+                append("encryption", "3des");
         collection.insertOne(usernamePasswordDoc);
         System.out.println("Username and password inserted successfully.");
     }
 
 
-    private static ArrayList<HashMap<String, String>> retrieveUsernamePassword(
-            MongoCollection<Document> collection, String appName, SecretKeySpec secretKey){
+    private static ArrayList<HashMap<String, String>> retrieveUsernamePasswordAES(
+            MongoCollection<Document> collection, String appName){
         // find a list of documents and use a List object instead of an iterator
         List<Document> documentList = collection.find(gte("appName", appName)).into(new ArrayList<>());
         System.out.println(documentList);
@@ -196,6 +210,13 @@ public class Main {
             dataList.add(appUsernamePwd);
         }
         return dataList;
+    }
+
+
+    private static ArrayList<HashMap<String, String>> retrieveUsernamePassword3DES(
+            MongoCollection<Document> collection, String appName){
+        //TODO
+        return null;
     }
 
 }

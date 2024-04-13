@@ -13,6 +13,14 @@ import java.util.Scanner;
 
 import static com.mongodb.client.model.Updates.set;
 
+/**
+ * notes:
+ * 1. only admin gets to change the encryption algorithm.
+ * 2. when changing encryption algorithm:
+ *   a) it is changed for a user, one user at a time
+ *   b) all the passwords stored are converted to that encrpytion alg.
+ *   c) the encrpytion algorithm is updated in the appUsers collection.
+ */
 
 public class Admin {
 

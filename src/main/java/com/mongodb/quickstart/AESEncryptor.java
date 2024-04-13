@@ -84,7 +84,7 @@ public class AESEncryptor implements Encrpytor{
 
     public static void main(String[] args) {
         AESEncryptor AESEncryptor = new AESEncryptor();
-        String plaintext = "AdminPassword@321";
+        String plaintext = "Hello, world!";
         System.out.println("Original: " + plaintext);
         String encrypted = AESEncryptor.encrypt(plaintext);
         System.out.println("Encrypted: " + encrypted);
