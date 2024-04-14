@@ -18,20 +18,15 @@ public class Main {
 
     //TODO:
     // - option for user to keep adding users + passwords until 'q'
-    // - retrieve username + password for application after logging in
     // - handle incorrect user login
 
     //TODO: GUI!!
-
-    //TODO: treat it from the perspective of the enterprise security officer:
-    // - allow algorithms/rules/config to be changeable
 
     public static void main(String[] args) {
         String connectionString = System.getProperty("mongodb.uri");
         try (MongoClient mongoClient = MongoClients.create(connectionString)) {
 
             Scanner scanner = new Scanner(System.in);
-            //AESEncryptor aesEncryptor = new AESEncryptor();
 
             MongoDatabase appUsers = mongoClient.getDatabase("appUsers");
             MongoDatabase passwordManager = mongoClient.getDatabase("pwd-manager");
@@ -89,12 +84,20 @@ public class Main {
                     }
                 }
 
+                case 3 -> {
+                    System.out.println(" ----- ADMIN MODE ----");
+                    System.out.println("Enter the admin password: ");
+                    String enteredAdminPassword = scanner.nextLine();
+                    Admin.main(enteredAdminPassword);
+                }
+
                 default -> System.out.println("Invalid choice.");
             }
 
             if (loginSuccess) {
                 MongoCollection<Document> userCollection = passwordManager.getCollection(inputUsername);
-                String algType = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first().get("alg").toString();
+                String encryptionType = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).
+                        first().get("encryption").toString();
 
                 System.out.println("If you would like to enter data, please enter 1.");
                 System.out.println("If you would like to retrieve data, please enter 2.");
@@ -113,7 +116,7 @@ public class Main {
                         double passwordEntropy = EntropyChecker.calculateEntropy(password);
                         System.out.println("Password Entropy: " + passwordEntropy);
 
-                        if (algType.equals("aes")){
+                        if (encryptionType.equals("aes")){
                             insertUsernamePasswordAES(userCollection, applicationName, username, password);
                         } else {
                             insertUsernamePassword3DES(userCollection, applicationName, username, password);
@@ -123,8 +126,12 @@ public class Main {
                     case 2 -> {
                         System.out.println("1. Enter the application/website name ");
                         String applicationName = scanner.nextLine();
-                        ArrayList<HashMap<String, String>> dataList =
-                                retrieveUsernamePasswordAES(userCollection, applicationName);
+                        ArrayList<HashMap<String, String>> dataList = null;
+                        if (encryptionType.equals("aes")){
+                            dataList = retrieveUsernamePasswordAES(userCollection, applicationName);
+                        } else {
+                            dataList = retrieveUsernamePassword3DES(userCollection, applicationName);
+                        }
                         if (dataList.isEmpty()){
                             System.out.println("No records found.");
                         } else {
@@ -162,7 +169,7 @@ public class Main {
         // create a new document with the username and password
         // default encryption -> AES since it is stronger
         Document newUser = new Document("pwdMngrUsername", username)
-                .append("pwd", password).append("alg", "aes");
+                .append("pwd", password).append("encryption", "aes");
         // insert the document into the collection
         collection.insertOne(newUser);
         System.out.println("User account created successfully for " + username + ".");
@@ -184,8 +191,9 @@ public class Main {
                                                   String username, String plaintextPassword) {
         TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
         String encryptedPassword = tripleDESEncryptor.encrypt(plaintextPassword);
+        String key = TripleDESEncryptor.toString(tripleDESEncryptor.getSecretKey());
         Document usernamePasswordDoc = new Document("appName", appName).
-                append("username", username).append("password", encryptedPassword).
+                append("username", username).append("password", encryptedPassword).append("key", key).
                 append("encryption", "3des");
         collection.insertOne(usernamePasswordDoc);
         System.out.println("Username and password inserted successfully.");
@@ -196,7 +204,7 @@ public class Main {
             MongoCollection<Document> collection, String appName){
         // find a list of documents and use a List object instead of an iterator
         List<Document> documentList = collection.find(gte("appName", appName)).into(new ArrayList<>());
-        System.out.println(documentList);
+        //System.out.println(documentList);
         ArrayList<HashMap<String, String>> dataList = new ArrayList<>();
         for (Document document : documentList) {
             HashMap<String, String> appUsernamePwd= new HashMap<>();
@@ -215,8 +223,21 @@ public class Main {
 
     private static ArrayList<HashMap<String, String>> retrieveUsernamePassword3DES(
             MongoCollection<Document> collection, String appName){
-        //TODO
-        return null;
+        List<Document> documentList = collection.find(gte("appName", appName)).into(new ArrayList<>());
+        ArrayList<HashMap<String, String>> dataList = new ArrayList<>();
+        for (Document document : documentList) {
+            HashMap<String, String> appUsernamePwd= new HashMap<>();
+            appUsernamePwd.put("appName", document.getString("appName"));
+            appUsernamePwd.put("username", document.getString("username"));
+            String ciphertextPassword = document.getString("password");
+            //System.out.println(document.getString("key"));
+            TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor(TripleDESEncryptor.
+                    stringToSecretKey(document.getString("key")));
+            String plaintext = tripleDESEncryptor.decrypt(ciphertextPassword);
+            appUsernamePwd.put("password", plaintext);
+            dataList.add(appUsernamePwd);
+        }
+        return dataList;
     }
 
 }

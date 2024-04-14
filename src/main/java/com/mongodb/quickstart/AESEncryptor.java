@@ -84,15 +84,15 @@ public class AESEncryptor implements Encryptor {
     }
 
     public static void main(String[] args) {
-        AESEncryptor AESEncryptor = new AESEncryptor();
-        String plaintext = "Hello, world!";
+        AESEncryptor aesEncryptor = new AESEncryptor(AESEncryptor.stringToSecretKey("Ks4aWFsyiZjHYRr+fCPlYrCoGgFzFptP"));
+        String plaintext = "123";
         System.out.println("Original: " + plaintext);
-        String encrypted = AESEncryptor.encrypt(plaintext);
+        String encrypted = aesEncryptor.encrypt(plaintext);
         System.out.println("Encrypted: " + encrypted);
-        String decrypted = AESEncryptor.decrypt(encrypted);
+        String decrypted = aesEncryptor.decrypt(encrypted);
         System.out.println("Decrypted: " + decrypted);
-        String keyString = toString(AESEncryptor.secretKey);
+        String keyString = toString(aesEncryptor.secretKey);
         SecretKeySpec secretKeySpec = stringToSecretKey(keyString);
-        System.out.println(secretKeySpec.equals(AESEncryptor.secretKey));
+        System.out.println(secretKeySpec.equals(aesEncryptor.secretKey));
     }
 }
