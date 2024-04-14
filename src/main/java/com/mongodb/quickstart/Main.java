@@ -6,7 +6,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -4,18 +4,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
-import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.gte;
-import static com.mongodb.client.model.Updates.set;
 
 /**
  * Handling it from the perspective of a enterprise security officer.
@@ -27,7 +21,11 @@ import static com.mongodb.client.model.Updates.set;
  *   c) the encrpytion algorithm is updated in the appUsers collection.
  */
 
+
 public class Admin {
+
+    // TODO:
+    //  - handle incorrect admin login attempt
 
     public static void main(String plaintextPassword) {
         String connectionString = System.getProperty("mongodb.uri");
