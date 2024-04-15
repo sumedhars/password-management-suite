@@ -18,6 +18,7 @@ public class Main {
     //TODO:
     // - option for user to keep adding users + passwords until 'q'
     // - handle incorrect user login
+    // - update password for application functionality!!!
 
     //TODO: GUI!!
 
@@ -237,6 +238,14 @@ public class Main {
             dataList.add(appUsernamePwd);
         }
         return dataList;
+    }
+
+    private static void updateUsernamePasswordAES(){
+        //TODO
+    }
+
+    private static void updateUsernamePassword3DES(){
+        //TODO
     }
 
 }
