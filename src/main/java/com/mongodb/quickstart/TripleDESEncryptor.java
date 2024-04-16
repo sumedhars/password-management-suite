@@ -56,7 +56,7 @@ public class TripleDESEncryptor implements Encryptor{
         }
     }
 
-    protected SecretKey getSecretKey(){
+    public SecretKey getSecretKey(){
         return secretKey;
     }
 

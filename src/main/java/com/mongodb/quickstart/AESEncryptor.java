@@ -59,7 +59,7 @@ public class AESEncryptor implements Encryptor {
         }
     }
 
-    protected SecretKeySpec getSecretKey(){
+    public SecretKeySpec getSecretKey(){
         return secretKey;
     }
 
@@ -67,7 +67,7 @@ public class AESEncryptor implements Encryptor {
         this.secretKey = secretKey;
     }
 
-    protected static String toString(SecretKeySpec secretKey){
+    public static String toString(SecretKeySpec secretKey){
         // convert SecretKey to byte array
         byte[] keyBytes = secretKey.getEncoded();
         // encode the byte array to a Base64 String
@@ -75,7 +75,7 @@ public class AESEncryptor implements Encryptor {
         return keyString;
     }
 
-    protected static SecretKeySpec stringToSecretKey(String keyString){
+    public static SecretKeySpec stringToSecretKey(String keyString){
         // decode the Base64 string to a byte array
         byte[] keyBytes = Base64.getDecoder().decode(keyString);
         // create SecretKey from the byte array
