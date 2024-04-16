@@ -4,6 +4,8 @@ Adapted from the JMongoDB Java Quick Start Project.
 
 In Progress.
 
+Report (In progress): https://docs.google.com/document/d/1-PP2dCoGkH5CGwd5Cuf2rOt54O-0xcnCwHXv1gS12fg/edit?usp=sharing
+
 ### Author
 
 Sumedha Sanjeev
