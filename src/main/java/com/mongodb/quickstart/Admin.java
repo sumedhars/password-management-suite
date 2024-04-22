@@ -24,7 +24,7 @@ import java.util.Scanner;
 
 public class Admin {
 
-    // TODO:
+    //TODO:
     //  - handle incorrect admin login attempt
 
     public static void main(String plaintextPassword) {

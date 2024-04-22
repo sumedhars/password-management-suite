@@ -14,7 +14,7 @@ public class TestsMain {
             ArrayList<HashMap<String, String>> passwords2 = user.getEnglishWordPasswords();
             ArrayList<HashMap<String, String>> passwords3 = user.getRandomPasswords();
 
-            int maxDecryptionAttempts = 1000;
+            int maxDecryptionAttempts = 5000;
 
             ArrayList<HashMap<String, String>> bruteForceLogs1 =
                     bruteForceDecrypt(user, maxDecryptionAttempts, passwords1);

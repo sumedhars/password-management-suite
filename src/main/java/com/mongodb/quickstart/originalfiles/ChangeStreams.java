@@ -1,4 +1,4 @@
-package com.mongodb.quickstart;
+package com.mongodb.quickstart.originalfiles;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
