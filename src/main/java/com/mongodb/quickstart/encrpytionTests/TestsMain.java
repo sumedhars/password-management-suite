@@ -1,14 +1,26 @@
 package com.mongodb.quickstart.encrpytionTests;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
+
+import joinery.DataFrame;
 
 public class TestsMain {
 
     public static void main(String[] args) {
 
         ArrayList<User> userList = Tester.generateUsers(10);
+
+        List<String> rows = Arrays.asList("aes", "3des", "caesarWithSalt", "caesarWithoutSalt");
+        List<String> columns = Arrays.asList("commonPassword", "englishWordPassword", "randomPassword");
+        DataFrame<Object> successfulBruteForce = new DataFrame<>(rows, columns);
+        DataFrame<Object> unsuccessfulBruteForce = new DataFrame<>(rows, columns);
+        for (int i = 0; i < rows.size(); i++) {
+            for (int j = 0; j < columns.size(); j++) {
+                successfulBruteForce.set(i, j, 0);
+                unsuccessfulBruteForce.set(i, j, 0);
+            }
+        }
+
         for (User user : userList) {
             ArrayList<HashMap<String, String>> passwords1 = user.getCommonPasswords();
             ArrayList<HashMap<String, String>> passwords2 = user.getEnglishWordPasswords();
@@ -19,15 +31,29 @@ public class TestsMain {
             ArrayList<HashMap<String, String>> bruteForceLogs1 =
                     bruteForceDecrypt(user, maxDecryptionAttempts, passwords1);
             System.out.println(bruteForceLogs1);
+            ArrayList<DataFrame> bruteForce1DfList = valueCounts(bruteForceLogs1, successfulBruteForce,
+                    unsuccessfulBruteForce);
+            successfulBruteForce = bruteForce1DfList.get(0);
+            unsuccessfulBruteForce = bruteForce1DfList.get(1);
 
             ArrayList<HashMap<String, String>> bruteForceLogs2 =
                     bruteForceDecrypt(user, maxDecryptionAttempts, passwords2);
             System.out.println(bruteForceLogs2);
+            ArrayList<DataFrame> bruteForce2DfList = valueCounts(bruteForceLogs2, successfulBruteForce,
+                    unsuccessfulBruteForce);
+            successfulBruteForce = bruteForce2DfList.get(0);
+            unsuccessfulBruteForce = bruteForce2DfList.get(1);
 
             ArrayList<HashMap<String, String>> bruteForceLogs3 =
                     bruteForceDecrypt(user, maxDecryptionAttempts, passwords3);
             System.out.println(bruteForceLogs3);
+            ArrayList<DataFrame> bruteForce3DfList = valueCounts(bruteForceLogs3, successfulBruteForce,
+                    unsuccessfulBruteForce);
+            successfulBruteForce = bruteForce3DfList.get(0);
+            unsuccessfulBruteForce = bruteForce3DfList.get(1);
         }
+        System.out.println(successfulBruteForce);
+        System.out.println(unsuccessfulBruteForce);
     }
 
     public static ArrayList<HashMap<String, String>> bruteForceDecrypt(User user, int maxDecryptionAttempts,
@@ -71,7 +97,55 @@ public class TestsMain {
         return bruteForceLog;
     }
 
+    public static ArrayList<DataFrame> valueCounts(ArrayList<HashMap<String, String>> bruteForceLogs,
+                                            DataFrame<Object> successfulBruteForce,
+                                            DataFrame<Object> unsuccessfulBruteForce){
+        ArrayList<DataFrame> toReturn = new ArrayList<>();
+        for (HashMap<String, String> passwordMap: bruteForceLogs){
+            String encryption = passwordMap.get("encryption");
+            String bruteForceSuccess = passwordMap.get("bruteForceSuccess");
+            if (encryption.equals("aes")){
+                if (bruteForceSuccess.equals("true")){
+                    int currentValue = (int) successfulBruteForce.get("aes", "commonPassword");
+                    successfulBruteForce.set("aes", "commonPassword", currentValue + 1 );
+                } else {
+                    int currentValue = (int) unsuccessfulBruteForce.get("aes", "commonPassword");
+                    unsuccessfulBruteForce.set("aes", "commonPassword", currentValue + 1 );
+                }
+            } else if (encryption.equals("3des")){
+                if (bruteForceSuccess.equals("true")){
+                    int currentValue = (int) successfulBruteForce.get("3des", "commonPassword");
+                    successfulBruteForce.set("3des", "commonPassword", currentValue + 1 );
+                } else {
+                    int currentValue = (int) unsuccessfulBruteForce.get("3des", "commonPassword");
+                    unsuccessfulBruteForce.set("3des", "commonPassword", currentValue + 1 );
+                }
+            } else if (encryption.equals("caesarWithoutSalt")){
+                if (bruteForceSuccess.equals("true")){
+                    int currentValue = (int) successfulBruteForce.get("caesarWithoutSalt", "commonPassword");
+                    successfulBruteForce.set("caesarWithoutSalt", "commonPassword", currentValue + 1 );
+                } else {
+                    int currentValue = (int) unsuccessfulBruteForce.get("caesarWithoutSalt", "commonPassword");
+                    unsuccessfulBruteForce.set("caesarWithoutSalt", "commonPassword", currentValue + 1 );
+                }
+            } else {
+                if (bruteForceSuccess.equals("true")){
+                    int currentValue = (int) successfulBruteForce.get("caesarWithSalt", "commonPassword");
+                    successfulBruteForce.set("caesarWithSalt", "commonPassword", currentValue + 1 );
+                } else {
+                    int currentValue = (int) unsuccessfulBruteForce.get("caesarWithSalt", "commonPassword");
+                    unsuccessfulBruteForce.set("caesarWithSalt", "commonPassword", currentValue + 1 );
+                }
+            }
+        }
+        toReturn.add(successfulBruteForce);
+        toReturn.add(unsuccessfulBruteForce);
+        return toReturn;
+    }
+
 }
+
+
 
 
 //    ArrayList<HashMap<String, String>> commonPasswords = user1.getCommonPasswords();
