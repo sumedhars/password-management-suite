@@ -1,6 +1,7 @@
 package com.mongodb.quickstart.encrpytionTests;
 
 import com.mongodb.quickstart.AESEncryptor;
+import com.mongodb.quickstart.CaesarCipher;
 import com.mongodb.quickstart.TripleDESEncryptor;
 
 import java.util.ArrayList;
@@ -89,8 +90,55 @@ public class Tester {
         passwordMap.put("encryption", "3des");
     }
 
-    //TODO: stream cipher
-    // for seventh, eighth, and ninth entries of all three lists (index 6, <10)
+
+    /**
+     * Encrypts passwords with the Caesar cipher for the seventh, eighth, and ninth entries of all three lists
+     * @param user
+     */
+    public static void encryptPasswordsCaesar(User user) {
+        // Get password lists
+        ArrayList<HashMap<String, String>> commonPasswords = user.getCommonPasswords();
+        ArrayList<HashMap<String, String>> englishWordPasswords = user.getEnglishWordPasswords();
+        ArrayList<HashMap<String, String>> randomPasswords = user.getRandomPasswords();
+        // Instance of CaesarCipher
+        CaesarCipher caesarCipher = new CaesarCipher(5); // Shift by 5, or any other desired value
+
+        // Encrypt the seventh, eighth, and ninth entries of each password list (index 6 to 8)
+        for (int i = 6; i < 8; i++) {
+            encryptPasswordEntryCaesarWithSalt(commonPasswords, i, caesarCipher);
+            encryptPasswordEntryCaesarWithSalt(englishWordPasswords, i, caesarCipher);
+            encryptPasswordEntryCaesarWithSalt(randomPasswords, i, caesarCipher);
+        }
+        for (int i = 8; i < 10; i++) {
+            encryptPasswordEntryCaesarWithoutSalt(commonPasswords, i, caesarCipher);
+            encryptPasswordEntryCaesarWithoutSalt(englishWordPasswords, i, caesarCipher);
+            encryptPasswordEntryCaesarWithoutSalt(randomPasswords, i, caesarCipher);
+        }
+        // update the user's password lists
+        user.setCommonPasswords(commonPasswords);
+        user.setEnglishWordPasswords(englishWordPasswords);
+        user.setRandomPasswords(randomPasswords);
+    }
+
+    private static void encryptPasswordEntryCaesarWithSalt(ArrayList<HashMap<String, String>> passwordList, int index,
+                                                   CaesarCipher caesarCipher) {
+        HashMap<String, String> passwordMap = passwordList.get(index);
+        String plaintext = passwordMap.get("plaintextPwd");
+        String ciphertext = caesarCipher.encrypt(plaintext, true);
+        // Update the map with the encrypted password
+        passwordMap.put("cipherPwd", ciphertext);
+        passwordMap.put("encryption", "caesarWithSalt");
+    }
+
+    private static void encryptPasswordEntryCaesarWithoutSalt(ArrayList<HashMap<String, String>> passwordList, int index,
+                                                           CaesarCipher caesarCipher) {
+        HashMap<String, String> passwordMap = passwordList.get(index);
+        String plaintext = passwordMap.get("plaintextPwd");
+        String ciphertext = caesarCipher.encrypt(plaintext, false);
+        // Update the map with the encrypted password
+        passwordMap.put("cipherPwd", ciphertext);
+        passwordMap.put("encryption", "caesarWithoutSalt");
+    }
 
     public static ArrayList<User> generateUsers(int numUsers){
         ArrayList<User> users = new ArrayList<>();

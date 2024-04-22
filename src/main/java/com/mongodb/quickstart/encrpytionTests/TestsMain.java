@@ -35,11 +35,12 @@ public class TestsMain {
         ArrayList<HashMap<String, String>> bruteForceLog = new ArrayList<>();
         Tester.encryptPasswordsAES(user);
         Tester.encryptPasswords3DES(user);
+        Tester.encryptPasswordsCaesar(user);
         BruteForceDecryptor bruteForceDecryptor = new BruteForceDecryptor();
         Random random = new Random();
         ArrayList<String> completedPasswords = new ArrayList<>();
-        while (completedPasswords.size() != 6 ){
-            HashMap<String, String> randomPwdMap = passwords.get(random.nextInt(6)); //TODO: change
+        while (completedPasswords.size() != passwords.size() ){
+            HashMap<String, String> randomPwdMap = passwords.get(random.nextInt(passwords.size()));
             String trialCiphertext = randomPwdMap.get("cipherPwd");
             String plaintext = randomPwdMap.get("plaintextPwd");
             if (!completedPasswords.contains(trialCiphertext)) {
@@ -48,9 +49,11 @@ public class TestsMain {
                 if (trialEncryptionType.equals("aes")) {
                     bruteForceDecrypt = bruteForceDecryptor.decryptAES(trialCiphertext,
                             maxDecryptionAttempts, plaintext);
-                } else {
+                } else if (trialEncryptionType.equals("3des")){
                     bruteForceDecrypt = bruteForceDecryptor.decrypt3DES(trialCiphertext,
                             maxDecryptionAttempts, plaintext);
+                } else {
+                    bruteForceDecrypt = bruteForceDecryptor.decryptCaesar(trialCiphertext, plaintext);
                 }
                 HashMap<String, String> log = new HashMap<>();
                 log.put("cipherPwd", trialCiphertext);

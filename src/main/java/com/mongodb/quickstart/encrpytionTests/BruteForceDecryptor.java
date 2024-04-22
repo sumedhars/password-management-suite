@@ -72,7 +72,52 @@ public class BruteForceDecryptor {
                 // skips decryption errors - since randomly generated keys won't work
             }
         }
-        return null; // Return null if no valid decryption found
+        return null; // return null if no valid decryption found
+    }
+
+
+    /**
+     * try to decrypt data encrypted with Caesar cipher using brute force.
+     * @param encryptedData encrypted data as String.
+     * @param plaintext the expected plaintext to find the correct shift.
+     * @return decrypted text if successful, null otherwise.
+     */
+    public String decryptCaesar(String encryptedData, String plaintext) {
+        for (int shift = 1; shift < 26; shift++) {
+            String decryptedText = decryptWithShift(encryptedData, shift);
+            if (decryptedText.equals(plaintext)) {
+                return decryptedText;
+            }
+        }
+        return null; // return null if no valid decryption found
+    }
+
+    /**
+     * decrypts the text using a given shift according to caesar cipher rules
+     * @param text The encrypted text.
+     * @param shift The shift used to decrypt.
+     * @return The decrypted text.
+     */
+    private String decryptWithShift(String text, int shift) {
+        StringBuilder decrypted = new StringBuilder();
+        for (char character : text.toCharArray()) {
+            if (character >= 'a' && character <= 'z') {
+                char shifted = (char) (character - shift);
+                if (shifted < 'a') {
+                    shifted += 26;
+                }
+                decrypted.append(shifted);
+            } else if (character >= 'A' && character <= 'Z') {
+                char shifted = (char) (character - shift);
+                if (shifted < 'A') {
+                    shifted += 26;
+                }
+                decrypted.append(shifted);
+            } else {
+                decrypted.append(character); // non-alphabetic characters are not shifted
+            }
+        }
+        return decrypted.toString();
     }
 
 
