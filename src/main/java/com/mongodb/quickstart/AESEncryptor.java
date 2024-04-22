@@ -5,6 +5,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * learning resource: https://www.baeldung.com/java-aes-encryption-decryption
+ */
 public class AESEncryptor implements Encryptor {
 
     private static final String AES = "AES";

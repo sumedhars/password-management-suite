@@ -47,6 +47,7 @@ public class Tester {
         // Update the map with the encrypted password and key
         passwordMap.put("cipherPwd", ciphertext);
         passwordMap.put("key", key);
+        passwordMap.put("encryption", "aes");
     }
 
 
@@ -57,7 +58,7 @@ public class Tester {
         ArrayList<HashMap<String, String>> randomPasswords = user.getRandomPasswords();
         // AES encryptor instance
         TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
-        // Encrypt the first three entries of each password list
+        // Encrypt the fourth, fifth, and sixth entries of each password list
         for (int i = 3; i < 6; i++) {
             encryptPasswordEntry3DES(commonPasswords, i, tripleDESEncryptor);
             encryptPasswordEntry3DES(englishWordPasswords, i, tripleDESEncryptor);
@@ -85,9 +86,11 @@ public class Tester {
         // Update the map with the encrypted password and key
         passwordMap.put("cipherPwd", ciphertext);
         passwordMap.put("key", key);
+        passwordMap.put("encryption", "3des");
     }
 
     //TODO: stream cipher
+    // for seventh, eighth, and ninth entries of all three lists (index 6, <10)
 
     public static ArrayList<User> generateUsers(int numUsers){
         ArrayList<User> users = new ArrayList<>();
