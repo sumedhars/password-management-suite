@@ -41,13 +41,16 @@ public class TestsMain {
         while (completedPasswords.size() != 6 ){
             HashMap<String, String> randomPwdMap = passwords.get(random.nextInt(6)); //TODO: change
             String trialCiphertext = randomPwdMap.get("cipherPwd");
+            String plaintext = randomPwdMap.get("plaintextPwd");
             if (!completedPasswords.contains(trialCiphertext)) {
                 String trialEncryptionType = randomPwdMap.get("encryption");
                 String bruteForceDecrypt;
                 if (trialEncryptionType.equals("aes")) {
-                    bruteForceDecrypt = bruteForceDecryptor.decryptAES(trialCiphertext, maxDecryptionAttempts);
+                    bruteForceDecrypt = bruteForceDecryptor.decryptAES(trialCiphertext,
+                            maxDecryptionAttempts, plaintext);
                 } else {
-                    bruteForceDecrypt = bruteForceDecryptor.decrypt3DES(trialCiphertext, maxDecryptionAttempts);
+                    bruteForceDecrypt = bruteForceDecryptor.decrypt3DES(trialCiphertext,
+                            maxDecryptionAttempts, plaintext);
                 }
                 HashMap<String, String> log = new HashMap<>();
                 log.put("cipherPwd", trialCiphertext);

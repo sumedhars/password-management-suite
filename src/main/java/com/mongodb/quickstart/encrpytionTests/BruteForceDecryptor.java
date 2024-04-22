@@ -19,8 +19,8 @@ public class BruteForceDecryptor {
      * @param maxAttempts   Maximum number of brute force attempts.
      * @return The decrypted text if successful, null otherwise.
      */
-    public String decryptAES(String encryptedData, int maxAttempts) {
-        return decrypt(encryptedData, maxAttempts, new AESEngine(), 16); // AES uses 128-bit keys
+    public String decryptAES(String encryptedData, int maxAttempts, String plaintext) {
+        return decrypt(encryptedData, maxAttempts, new AESEngine(), 16, plaintext); // AES uses 128-bit keys
     }
 
     /**
@@ -29,18 +29,10 @@ public class BruteForceDecryptor {
      * @param maxAttempts   Maximum number of brute force attempts.
      * @return The decrypted text if successful, null otherwise.
      */
-    public String decrypt3DES(String encryptedData, int maxAttempts) {
-        return decrypt(encryptedData, maxAttempts, new DESedeEngine(), 24); // 3DES uses 192-bit keys (24 bytes)
+    public String decrypt3DES(String encryptedData, int maxAttempts, String plaintext) {
+        return decrypt(encryptedData, maxAttempts, new DESedeEngine(), 24, plaintext); // 3DES uses 192-bit keys (24 bytes)
     }
 
-    /**
-     * TODO: change to check if it is the original password!!
-     * @param text
-     * @return
-     */
-    private boolean isValidDecryptedText(String text) {
-        return text.matches("\\A\\p{ASCII}*\\z");
-    }
 
     /**
      * general decrypt method used by both AES and 3DES decryption methods.
@@ -50,7 +42,8 @@ public class BruteForceDecryptor {
      * @param keySize       The size of the key in bytes.
      * @return the decrypted text if successful, null otherwise.
      */
-    private String decrypt(String encryptedData, int maxAttempts, org.bouncycastle.crypto.BlockCipher engine, int keySize) {
+    private String decrypt(String encryptedData, int maxAttempts, org.bouncycastle.crypto.BlockCipher engine,
+                           int keySize, String plaintext) {
         byte[] cipherData = Base64.decode(encryptedData);
         byte[] keyBytes = new byte[keySize];
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
@@ -68,8 +61,8 @@ public class BruteForceDecryptor {
                 processed += cipher.doFinal(decryptedData, processed);
 
                 String decryptedText = new String(decryptedData, 0, processed).trim();
-                if (isValidDecryptedText(decryptedText)) {
-                    // successfully decrypted text
+                // System.out.println(decryptedText);
+                if (decryptedText.equals(plaintext)) {
                     return decryptedText;
                 }
             } catch (CryptoException e) {
