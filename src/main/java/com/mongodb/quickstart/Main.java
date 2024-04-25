@@ -16,7 +16,6 @@ import static com.mongodb.client.model.Filters.gte;
 public class Main {
 
     //TODO:
-    // - handle incorrect user login
     // - update password for application functionality!!!
 
     public static void main(String[] args) {
@@ -33,62 +32,68 @@ public class Main {
             System.out.println("------------------------");
             System.out.println("WELCOME TO 2PWD Password Manager !!! \n");
 
-            System.out.println("OPTIONS:");
-            System.out.println("1. Current 2PWD user login");
-            System.out.println("2. Create new 2PWD account");
-            System.out.println("3: Admin mode");
-            Integer option1 = Integer.parseInt(scanner.nextLine());
-
             boolean loginSuccess = false;
             String inputUsername = "";
 
-            switch (option1) {
-                case 1 -> {
-                    System.out.println(" ----- USER LOGIN ----");
-                    System.out.println("1. Enter your 2PWD username: ");
-                    inputUsername = scanner.nextLine();
-                    System.out.println("2. Enter your 2PWD password: ");
-                    String inputPassword = scanner.nextLine();
-                    loginSuccess = checkLoginSuccess(appUsersCollection, inputUsername, inputPassword);
-                    break;
-                }
-                case 2 -> {
-                    System.out.println(" ----- CREATE ACCOUNT ----");
-                    String inputPassword;
-                    String confirmPassword;
-                    boolean validUsername = false;
-                    while (!validUsername) {
+            while (!loginSuccess) {
+
+                System.out.println("OPTIONS:");
+                System.out.println("1. Current 2PWD user login");
+                System.out.println("2. Create new 2PWD account");
+                System.out.println("3: Admin mode");
+                Integer option1 = Integer.parseInt(scanner.nextLine());
+
+                switch (option1) {
+                    case 1 -> {
+                        System.out.println(" ----- USER LOGIN ----");
                         System.out.println("1. Enter your 2PWD username: ");
                         inputUsername = scanner.nextLine();
-                        Document existingUser = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first();
-                        if (existingUser == null) {
-                            validUsername = true;
-                        } else {
-                            System.out.println("Username '" + inputUsername + "' already exists. Please choose a different username.");
+                        System.out.println("2. Enter your 2PWD password: ");
+                        String inputPassword = scanner.nextLine();
+                        loginSuccess = checkLoginSuccess(appUsersCollection, inputUsername, inputPassword);
+                        if (!loginSuccess) {
+                            System.out.println("Incorrect password entered.");
                         }
+                        break;
                     }
-                    System.out.println("2. Enter your 2PWD password: ");
-                    inputPassword = scanner.nextLine();
-                    System.out.println("3. Re-enter your 2PWD Password: ");
-                    confirmPassword = scanner.nextLine();
-                    if (confirmPassword.equals(inputPassword)) {
-                        createUserAccount(appUsersCollection, inputUsername, inputPassword);
-                        passwordManager.createCollection(inputUsername);
-                        System.out.println("Collection '" + inputUsername + "' created successfully in the pwd-manager database.");
-                        loginSuccess = true;
+                    case 2 -> {
+                        System.out.println(" ----- CREATE ACCOUNT ----");
+                        String inputPassword;
+                        String confirmPassword;
+                        boolean validUsername = false;
+                        while (!validUsername) {
+                            System.out.println("1. Enter your 2PWD username: ");
+                            inputUsername = scanner.nextLine();
+                            Document existingUser = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first();
+                            if (existingUser == null) {
+                                validUsername = true;
+                            } else {
+                                System.out.println("Username '" + inputUsername + "' already exists. Please choose a different username.");
+                            }
+                        }
+                        System.out.println("2. Enter your 2PWD password: ");
+                        inputPassword = scanner.nextLine();
+                        System.out.println("3. Re-enter your 2PWD Password: ");
+                        confirmPassword = scanner.nextLine();
+                        if (confirmPassword.equals(inputPassword)) {
+                            createUserAccount(appUsersCollection, inputUsername, inputPassword);
+                            passwordManager.createCollection(inputUsername);
+                            System.out.println("Collection '" + inputUsername + "' created successfully in the pwd-manager database.");
+                            loginSuccess = true;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 3 -> {
-                    System.out.println(" ----- ADMIN MODE ----");
-                    System.out.println("Enter the admin password: ");
-                    String enteredAdminPassword = scanner.nextLine();
-                    Admin.main(enteredAdminPassword);
-                    break;
-                }
-                default -> {
-                    System.out.println("Invalid choice.");
-                    break;
+                    case 3 -> {
+                        System.out.println(" ----- ADMIN MODE ----");
+                        System.out.println("Enter the admin password: ");
+                        String enteredAdminPassword = scanner.nextLine();
+                        Admin.main(enteredAdminPassword);
+                        break;
+                    }
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        break;
+                    }
                 }
             }
 
@@ -264,7 +269,9 @@ public class Main {
         return dataList;
     }
 
-    private static void updateUsernamePasswordAES(){
+    private static void updateUsernamePasswordAES(MongoCollection<Document> collection,
+                                                  String appName){
+        ArrayList<HashMap<String, String>> retrieved = retrieveUsernamePasswordAES(collection, appName);
         //TODO
     }
 
