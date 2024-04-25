@@ -4,8 +4,8 @@ Adapted from the JMongoDB Java Quick Start Project.
 
 In Progress.
 
-- Actual code: src/main
-- Testing Encryption: src/main/encryptionTests
+- Actual code: src/main/java/com/mongodb/quickstart
+- Testing Encryption: src/main/java/com/mongodb/quickstart/encryptionTests
 
 Report (In progress): https://docs.google.com/document/d/1-PP2dCoGkH5CGwd5Cuf2rOt54O-0xcnCwHXv1gS12fg/edit?usp=sharing
 
