@@ -16,11 +16,8 @@ import static com.mongodb.client.model.Filters.gte;
 public class Main {
 
     //TODO:
-    // - option for user to keep adding users + passwords until 'q'
     // - handle incorrect user login
     // - update password for application functionality!!!
-
-    //TODO: GUI!!
 
     public static void main(String[] args) {
         String connectionString = System.getProperty("mongodb.uri");
@@ -46,7 +43,6 @@ public class Main {
             String inputUsername = "";
 
             switch (option1) {
-
                 case 1 -> {
                     System.out.println(" ----- USER LOGIN ----");
                     System.out.println("1. Enter your 2PWD username: ");
@@ -54,8 +50,8 @@ public class Main {
                     System.out.println("2. Enter your 2PWD password: ");
                     String inputPassword = scanner.nextLine();
                     loginSuccess = checkLoginSuccess(appUsersCollection, inputUsername, inputPassword);
+                    break;
                 }
-
                 case 2 -> {
                     System.out.println(" ----- CREATE ACCOUNT ----");
                     String inputPassword;
@@ -64,7 +60,6 @@ public class Main {
                     while (!validUsername) {
                         System.out.println("1. Enter your 2PWD username: ");
                         inputUsername = scanner.nextLine();
-                        // check if the username already exists in the collection
                         Document existingUser = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first();
                         if (existingUser == null) {
                             validUsername = true;
@@ -76,76 +71,90 @@ public class Main {
                     inputPassword = scanner.nextLine();
                     System.out.println("3. Re-enter your 2PWD Password: ");
                     confirmPassword = scanner.nextLine();
-                    if (confirmPassword.equals(inputPassword)){
+                    if (confirmPassword.equals(inputPassword)) {
                         createUserAccount(appUsersCollection, inputUsername, inputPassword);
                         passwordManager.createCollection(inputUsername);
                         System.out.println("Collection '" + inputUsername + "' created successfully in the pwd-manager database.");
                         loginSuccess = true;
                     }
+                    break;
                 }
-
                 case 3 -> {
                     System.out.println(" ----- ADMIN MODE ----");
                     System.out.println("Enter the admin password: ");
                     String enteredAdminPassword = scanner.nextLine();
                     Admin.main(enteredAdminPassword);
+                    break;
                 }
-
-                default -> System.out.println("Invalid choice.");
+                default -> {
+                    System.out.println("Invalid choice.");
+                    break;
+                }
             }
 
             if (loginSuccess) {
                 MongoCollection<Document> userCollection = passwordManager.getCollection(inputUsername);
-                String encryptionType = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).
-                        first().get("encryption").toString();
+                String encryptionType = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first()
+                        .get("encryption").toString();
 
-                System.out.println("If you would like to enter data, please enter 1.");
-                System.out.println("If you would like to retrieve data, please enter 2.");
-                Integer option2 = Integer.parseInt(scanner.nextLine());
+                boolean continueInput = true;
+                while (continueInput) {
+                    System.out.println("If you would like to enter data, please enter 1.");
+                    System.out.println("If you would like to retrieve data, please enter 2.");
+                    System.out.println("Enter 'q' to quit.");
+                    String option2 = scanner.nextLine();
 
-                switch (option2) {
-
-                    case 1 -> {
-                        System.out.println("1. Enter the application/website name ");
-                        String applicationName = scanner.nextLine();
-                        System.out.println("2. Enter the application username: ");
-                        String username = scanner.nextLine();
-                        System.out.println("3. Enter the application password: ");
-                        String password = scanner.nextLine();
-
-                        double passwordEntropy = EntropyChecker.calculateEntropy(password);
-                        System.out.println("Password Entropy: " + passwordEntropy);
-
-                        if (encryptionType.equals("aes")){
-                            insertUsernamePasswordAES(userCollection, applicationName, username, password);
-                        } else {
-                            insertUsernamePassword3DES(userCollection, applicationName, username, password);
-                        }
+                    if (option2.equals("q")) {
+                        continueInput = false;
+                        break;
                     }
 
-                    case 2 -> {
-                        System.out.println("1. Enter the application/website name ");
-                        String applicationName = scanner.nextLine();
-                        ArrayList<HashMap<String, String>> dataList = null;
-                        if (encryptionType.equals("aes")){
-                            dataList = retrieveUsernamePasswordAES(userCollection, applicationName);
-                        } else {
-                            dataList = retrieveUsernamePassword3DES(userCollection, applicationName);
+                    switch (option2) {
+                        case "1" -> {
+                            System.out.println("1. Enter the application/website name ");
+                            String applicationName = scanner.nextLine();
+                            System.out.println("2. Enter the application username: ");
+                            String username = scanner.nextLine();
+                            System.out.println("3. Enter the application password: ");
+                            String password = scanner.nextLine();
+
+                            double passwordEntropy = EntropyChecker.calculateEntropy(password);
+                            System.out.println("Password Entropy: " + passwordEntropy);
+
+                            if (encryptionType.equals("aes")) {
+                                insertUsernamePasswordAES(userCollection, applicationName, username, password);
+                            } else {
+                                insertUsernamePassword3DES(userCollection, applicationName, username, password);
+                            }
+                            break;
                         }
-                        if (dataList.isEmpty()){
-                            System.out.println("No records found.");
-                        } else {
-                            System.out.println("Records found: ");
-                            System.out.println(dataList);
+                        case "2" -> {
+                            System.out.println("1. Enter the application/website name ");
+                            String applicationName = scanner.nextLine();
+                            ArrayList<HashMap<String, String>> dataList = null;
+                            if (encryptionType.equals("aes")) {
+                                dataList = retrieveUsernamePasswordAES(userCollection, applicationName);
+                            } else {
+                                dataList = retrieveUsernamePassword3DES(userCollection, applicationName);
+                            }
+                            if (dataList.isEmpty()) {
+                                System.out.println("No records found.");
+                            } else {
+                                System.out.println("Records found: ");
+                                System.out.println(dataList);
+                            }
+                            break;
+                        }
+                        default -> {
+                            System.out.println("Invalid choice.");
+                            break;
                         }
                     }
-
-                    default -> System.out.println("Invalid choice.");
                 }
-
             }
         }
     }
+
 
 
     private static boolean checkLoginSuccess(MongoCollection<Document> collection, String username,
@@ -155,21 +164,36 @@ public class Main {
         Document query = new Document("pwdMngrUsername", username);
         Document userFound = collection.find(query).first();
         // check if user exists and password matches
-        if (userFound != null && userFound.getString("pwd").equals(password)) {
-            System.out.println("Authentication successful. Welcome, " + username + "!");
-            loginSuccess = true;
+        if (userFound != null){
+            String encryptedPassword = userFound.getString("pwd");
+            if (verifyUserPassword(password, encryptedPassword)) {
+                System.out.println("Authentication successful. Welcome, " + username + "!");
+                loginSuccess = true;
+            }
         } else {
             System.out.println("Authentication failed. Invalid username or password.");
         }
         return loginSuccess;
     }
 
+    public static boolean verifyUserPassword(String plaintextPassword, String encryptedPassword){
+        boolean validLogin = false;
+        Argon2Encryptor encryptor = new Argon2Encryptor();
+        if (encryptor.verifyPassword(plaintextPassword, encryptedPassword)) {
+            validLogin = true;
+        }
+        return validLogin;
+    }
+
 
     private static void createUserAccount(MongoCollection<Document> collection, String username, String password){
         // create a new document with the username and password
         // default encryption -> AES since it is stronger
+        // user login password stored using argon2 encryptor
+        Argon2Encryptor argon2Encryptor = new Argon2Encryptor();
+        String encryptedUserPwd = argon2Encryptor.encrypt(password);
         Document newUser = new Document("pwdMngrUsername", username)
-                .append("pwd", password).append("encryption", "aes");
+                .append("pwd", encryptedUserPwd).append("encryption", "aes");
         // insert the document into the collection
         collection.insertOne(newUser);
         System.out.println("User account created successfully for " + username + ".");

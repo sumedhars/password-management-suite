@@ -7,7 +7,7 @@ public class Argon2Encryptor {
 
     public Argon2Encryptor() {}
 
-    private String encrypt(String plaintext){
+    public String encrypt(String plaintext){
         Argon2 argon2 = Argon2Factory.create();
         try {
             String hashedPassword = hashPassword(argon2, plaintext);
