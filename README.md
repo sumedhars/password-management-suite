@@ -1,4 +1,5 @@
-## Password Management Suite - Information Security (CPE 4800) Final Project
+## EncryptEase Password Management Suite 
+## Information Security (CPE 4800) Final Project
 
 Adapted from the JMongoDB Java Quick Start Project.
 
