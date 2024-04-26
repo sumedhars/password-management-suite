@@ -1,22 +1,18 @@
 package com.mongodb.quickstart;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import javax.print.Doc;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.gte;
 
 public class Main {
-
-    //TODO:
-    // - update password for application functionality!!!
 
     public static void main(String[] args) {
         String connectionString = System.getProperty("mongodb.uri");
@@ -106,6 +102,7 @@ public class Main {
                 while (continueInput) {
                     System.out.println("If you would like to enter data, please enter 1.");
                     System.out.println("If you would like to retrieve data, please enter 2.");
+                    System.out.println("If you would like to update data, please enter 3.");
                     System.out.println("Enter 'q' to quit.");
                     String option2 = scanner.nextLine();
 
@@ -134,7 +131,7 @@ public class Main {
                             break;
                         }
                         case "2" -> {
-                            System.out.println("1. Enter the application/website name ");
+                            System.out.println("1. Enter the application/website name: ");
                             String applicationName = scanner.nextLine();
                             ArrayList<HashMap<String, String>> dataList = null;
                             if (encryptionType.equals("aes")) {
@@ -149,6 +146,14 @@ public class Main {
                                 System.out.println(dataList);
                             }
                             break;
+                        }
+                        case "3" -> {
+                            //TODO - update - need to split AES/3DES logic
+                            System.out.println("1. Enter the application/website name: ");
+                            String applicationName = scanner.nextLine();
+                            System.out.println("1. Enter the new password: ");
+                            String newPassword = scanner.nextLine();
+                            updateUsernamePassword(userCollection, applicationName, newPassword);
                         }
                         default -> {
                             System.out.println("Invalid choice.");
@@ -206,6 +211,13 @@ public class Main {
 
     private static void insertUsernamePasswordAES(MongoCollection<Document> collection, String appName,
                                                String username, String plaintextPassword) {
+        // Check if appName & username combo already exists
+        Bson filter = Filters.and(Filters.eq("appName", appName), Filters.eq("username", username));
+        long count = collection.countDocuments(filter);
+        if (count > 0) {
+            System.out.println("Entry for the provided appName and username already exists.");
+            return; // Exit the method to prevent inserting duplicate data
+        }
         AESEncryptor aesEncryptor = new AESEncryptor();
         String encryptedPassword = aesEncryptor.encrypt(plaintextPassword);
         String key = AESEncryptor.toString(aesEncryptor.getSecretKey());
@@ -218,6 +230,13 @@ public class Main {
 
     private static void insertUsernamePassword3DES(MongoCollection<Document> collection, String appName,
                                                   String username, String plaintextPassword) {
+        // Check if appName & username combo already exists
+        Bson filter = Filters.and(Filters.eq("appName", appName), Filters.eq("username", username));
+        long count = collection.countDocuments(filter);
+        if (count > 0) {
+            System.out.println("Entry for the provided appName and username already exists.");
+            return; // Exit the method to prevent inserting duplicate data
+        }
         TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
         String encryptedPassword = tripleDESEncryptor.encrypt(plaintextPassword);
         String key = TripleDESEncryptor.toString(tripleDESEncryptor.getSecretKey());
@@ -255,7 +274,7 @@ public class Main {
         List<Document> documentList = collection.find(gte("appName", appName)).into(new ArrayList<>());
         ArrayList<HashMap<String, String>> dataList = new ArrayList<>();
         for (Document document : documentList) {
-            HashMap<String, String> appUsernamePwd= new HashMap<>();
+            HashMap<String, String> appUsernamePwd = new HashMap<>();
             appUsernamePwd.put("appName", document.getString("appName"));
             appUsernamePwd.put("username", document.getString("username"));
             String ciphertextPassword = document.getString("password");
@@ -269,14 +288,62 @@ public class Main {
         return dataList;
     }
 
-    private static void updateUsernamePasswordAES(MongoCollection<Document> collection,
-                                                  String appName){
-        ArrayList<HashMap<String, String>> retrieved = retrieveUsernamePasswordAES(collection, appName);
-        //TODO
-    }
 
-    private static void updateUsernamePassword3DES(){
-        //TODO
+    private static void updateUsernamePassword(MongoCollection<Document> collection,
+                                                  String appNametoUpdate, String password){
+        Scanner scanner = new Scanner(System.in);
+        String collectionEncryption = collection.find().first().getString("encryption");
+        List<Document> retrieved = collection.find(gte("appName", appNametoUpdate)).into(new ArrayList<>());
+        if (retrieved.size() > 1){
+            System.out.println("More than one entry for application found:");
+            System.out.println(retrieved);
+            System.out.println("Enter the specific username to update from the list above: ");
+            String specificAppUsername = scanner.nextLine();
+            try {
+                // get collection
+                Bson filter = Filters.and(Filters.eq("appName", appNametoUpdate),
+                        Filters.eq("username", specificAppUsername));
+                FindIterable<Document> documents = collection.find(filter);
+                Document document = documents.first();
+                String encryption = document.getString("encryption");
+                String encryptedPassword;
+                String newKey;
+                if (encryption.equals("aes")) {
+                    AESEncryptor aesEncryptor = new AESEncryptor();
+                    encryptedPassword = aesEncryptor.encrypt(password);
+                    newKey = AESEncryptor.toString(aesEncryptor.getSecretKey());
+                } else {
+                    TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
+                    encryptedPassword = tripleDESEncryptor.encrypt(password);
+                    newKey = TripleDESEncryptor.toString(tripleDESEncryptor.getSecretKey());
+                }
+                // update it with new encrypted password
+                Document updatePassword = new Document("$set", new Document("password", encryptedPassword));
+                collection.updateOne(new Document("_id", document.get("_id")), updatePassword);
+                Document updateKey = new Document("$set", new Document("key", newKey));
+                collection.updateOne(new Document("_id", document.get("_id")), updateKey);
+            } catch (NoSuchElementException e){
+                System.out.println("Error: No Such username found.");
+            }
+        } else {
+            Document document = collection.find(eq("appName", appNametoUpdate)).first();
+            String encryption = document.getString("encryption");
+            String encryptedPassword;
+            String newKey;
+            if (encryption.equals("aes")) {
+                AESEncryptor aesEncryptor = new AESEncryptor();
+                encryptedPassword = aesEncryptor.encrypt(password);
+                newKey = AESEncryptor.toString(aesEncryptor.getSecretKey());
+            } else {
+                TripleDESEncryptor tripleDESEncryptor = new TripleDESEncryptor();
+                encryptedPassword = tripleDESEncryptor.encrypt(password);
+                newKey = TripleDESEncryptor.toString(tripleDESEncryptor.getSecretKey());
+            }
+            Document updatePassword = new Document("$set", new Document("password", encryptedPassword));
+            collection.updateOne(new Document("_id", document.get("_id")), updatePassword);
+            Document updateKey = new Document("$set", new Document("key", newKey));
+            collection.updateOne(new Document("_id", document.get("_id")), updateKey);
+        }
     }
 
 }
