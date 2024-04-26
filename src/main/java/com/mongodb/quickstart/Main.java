@@ -26,7 +26,7 @@ public class Main {
 
             System.out.println("Database connection successful.");
             System.out.println("------------------------");
-            System.out.println("WELCOME TO 2PWD Password Manager !!! \n");
+            System.out.println("WELCOME TO EncryptEase Password Manager !!! \n");
 
             boolean loginSuccess = false;
             String inputUsername = "";
@@ -34,17 +34,17 @@ public class Main {
             while (!loginSuccess) {
 
                 System.out.println("OPTIONS:");
-                System.out.println("1. Current 2PWD user login");
-                System.out.println("2. Create new 2PWD account");
+                System.out.println("1. Current EncryptEase user login");
+                System.out.println("2. Create new EncryptEase account");
                 System.out.println("3: Admin mode");
                 Integer option1 = Integer.parseInt(scanner.nextLine());
 
                 switch (option1) {
                     case 1 -> {
                         System.out.println(" ----- USER LOGIN ----");
-                        System.out.println("1. Enter your 2PWD username: ");
+                        System.out.println("1. Enter your EncryptEase username: ");
                         inputUsername = scanner.nextLine();
-                        System.out.println("2. Enter your 2PWD password: ");
+                        System.out.println("2. Enter your EncryptEase password: ");
                         String inputPassword = scanner.nextLine();
                         loginSuccess = checkLoginSuccess(appUsersCollection, inputUsername, inputPassword);
                         if (!loginSuccess) {
@@ -58,7 +58,7 @@ public class Main {
                         String confirmPassword;
                         boolean validUsername = false;
                         while (!validUsername) {
-                            System.out.println("1. Enter your 2PWD username: ");
+                            System.out.println("1. Enter your EncryptEase username: ");
                             inputUsername = scanner.nextLine();
                             Document existingUser = appUsersCollection.find(new Document("pwdMngrUsername", inputUsername)).first();
                             if (existingUser == null) {
@@ -67,9 +67,9 @@ public class Main {
                                 System.out.println("Username '" + inputUsername + "' already exists. Please choose a different username.");
                             }
                         }
-                        System.out.println("2. Enter your 2PWD password: ");
+                        System.out.println("2. Enter your EncryptEase password: ");
                         inputPassword = scanner.nextLine();
-                        System.out.println("3. Re-enter your 2PWD Password: ");
+                        System.out.println("3. Re-enter your EncryptEase Password: ");
                         confirmPassword = scanner.nextLine();
                         if (confirmPassword.equals(inputPassword)) {
                             createUserAccount(appUsersCollection, inputUsername, inputPassword);
@@ -148,7 +148,6 @@ public class Main {
                             break;
                         }
                         case "3" -> {
-                            //TODO - update - need to split AES/3DES logic
                             System.out.println("1. Enter the application/website name: ");
                             String applicationName = scanner.nextLine();
                             System.out.println("1. Enter the new password: ");
