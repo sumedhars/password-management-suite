@@ -3,6 +3,11 @@ package com.mongodb.quickstart;
 import java.security.SecureRandom;
 import java.util.Random;
 
+/**
+ * code reference resources:
+ * 1) https://www.baeldung.com/java-caesar-cipher
+ * 2) https://github.com/jthomasprogrammer/Ciphers/blob/master/src/ciphers/CaesarCipher.java
+ */
 public class CaesarCipher {
     private int shift;
     private static final String ALPHANUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

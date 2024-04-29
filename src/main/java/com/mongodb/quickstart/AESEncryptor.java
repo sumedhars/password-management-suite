@@ -6,7 +6,10 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * learning resource: https://www.baeldung.com/java-aes-encryption-decryption
+ * code reference resources:
+ * 1) https://www.baeldung.com/java-aes-encryption-decryption
+ * 2) https://www.webscale.com/engineering-education/implementing-aes-encryption-and-decryption-in-java/
+ * 3) https://www.geeksforgeeks.org/what-is-java-aes-encryption-and-decryption/
  */
 public class AESEncryptor implements Encryptor {
 

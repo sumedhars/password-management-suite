@@ -6,6 +6,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
+/**
+ * code reference resources:
+ * 1) https://github.com/thanosba/3Des-Encryption-Decryption-in-Java
+ * 2) https://www.baeldung.com/java-3des
+ * 3) https://stackoverflow.com/questions/20227/how-do-i-use-3des-encryption-decryption-in-java
+ */
 public class TripleDESEncryptor implements Encryptor{
     private SecretKey secretKey;
 

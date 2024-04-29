@@ -3,6 +3,11 @@ package com.mongodb.quickstart;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 
+/**
+ * code reference resources:
+ * 1) https://mkyong.com/java/java-password-hashing-with-argon2/
+ *
+ */
 public class Argon2Encryptor {
 
     public Argon2Encryptor() {}
