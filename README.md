@@ -17,7 +17,7 @@ This suite helps users to protect sensitive data, evaluates the strength of pass
 Note: 
 This project can currently only be interacted with by launching it and entering data through the console. This project's main focus is on implementing different Encryption algorithms. While this appl is functional and covers most edge cases, this app will not provide a seamless user experience. 
 
-Report (In progress): https://docs.google.com/document/d/1-PP2dCoGkH5CGwd5Cuf2rOt54O-0xcnCwHXv1gS12fg/edit?usp=sharing
+Report: https://docs.google.com/document/d/1-PP2dCoGkH5CGwd5Cuf2rOt54O-0xcnCwHXv1gS12fg/edit?usp=sharing
 
 ### Author
 
